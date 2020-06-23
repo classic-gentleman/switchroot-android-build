@@ -10,9 +10,11 @@ lunch lineage_$ROM_NAME-userdebug
 
 sed -i '/BOARD_KERNEL_IMAGE_NAME := zImage/a BOARD_MKBOOTIMG_ARGS    += --cmdline " "' ~/android/lineage/device/nvidia/foster/BoardConfig.mk
 
+NPROC=$(($(nproc) + 1))
+
 if [ "$ROM_TYPE" == "zip" ]
   then
-  make bacon
+  make -j${NPROC} bacon
 else
-  make bootimage && make vendorimage && make systemimage
+  make -j${NPROC} bootimage && make -j${NPROC} vendorimage && make -j${NPROC} systemimage && make -j${NPROC} recoveryimage
 fi

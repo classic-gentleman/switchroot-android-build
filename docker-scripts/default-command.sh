@@ -7,9 +7,25 @@ else
     ./get-sources.sh
 fi
 
-if [[ -z $FLAGS || ! -z ${FLAGS##*noupdate*} ]]; then
-    ./reset-changes-update-sources.sh
+if [[ -f /root/android/lineage/.repo/repo/repo ]]; then
+    cp /root/android/lineage/.repo/repo/repo /root/bin/repo
+fi
+
+if [[ -z $FLAGS || ! -z ${FLAGS##*noupdate*} || -z ${FLAGS##*timetravelto*} ]]; then
+    TARGETDATE=$(sed -E 's/.*timetravelto\=((\w|-|\s|\:){1,}).*/\1/g' <<<$FLAGS)
+    
+    if [[ ! -z ${TARGETDATE} ]]; then
+        echo "Target date: ${TARGETDATE}"
+    fi
+
+    ./reset-changes-update-sources.sh ${TARGETDATE}
     ./repopic-and-patch.sh
+fi
+
+if [[ -n $FLAGS && -z ${FLAGS##*forceclean*} ]]; then
+    cd /root/android/lineage
+    make clobber && make clean
+    cd /root
 fi
 
 if [[ -z $FLAGS || ! -z ${FLAGS##*nobuild*} ]]; then
